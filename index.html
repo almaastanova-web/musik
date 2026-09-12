@@ -1,0 +1,964 @@
+
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+  <script type="module" src="/@vite/client"></script>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Вересаев · Литературный обход</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ============ tokens ============ */
+:root{
+  --ink:#0f1513; --ink2:#161d1a; --ink3:#1d2622;
+  --bone:#e9e2d0; --bone-dim:rgba(233,226,208,.62);
+  --seal:#c4402f; --seal-deep:#a33325; --moss:#7d9b5f; --brass:#d3a94f; --teal:#4f9b8d;
+  --paper:#efe6cf; --paper-line:rgba(58,72,64,.16); --ink-on-paper:#26302b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  min-height:100vh; color:var(--bone);
+  font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+  background:
+    radial-gradient(1100px 700px at 78% -10%, rgba(79,155,141,.10), transparent 60%),
+    radial-gradient(900px 600px at -10% 30%, rgba(211,169,79,.07), transparent 55%),
+    radial-gradient(1200px 900px at 50% 120%, rgba(196,64,47,.09), transparent 60%),
+    linear-gradient(160deg, #111917 0%, var(--ink) 45%, #0c1210 100%);
+  background-attachment:fixed;
+  overflow-x:hidden;
+}
+.font-display{font-family:'Cormorant',Georgia,'Times New Roman',serif}
+.mono{font-family:'IBM Plex Mono',ui-monospace,'Courier New',monospace}
+#app{position:relative;z-index:10}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+/* ============ ambient layers ============ */
+.ambient{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.ink-splotch{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55}
+.sp1{width:520px;height:520px;left:-140px;top:-120px;background:radial-gradient(circle, rgba(79,155,141,.16), transparent 65%);animation:drift-a 34s ease-in-out infinite alternate}
+.sp2{width:640px;height:640px;right:-200px;top:24%;background:radial-gradient(circle, rgba(196,64,47,.13), transparent 65%);animation:drift-b 42s ease-in-out infinite alternate}
+.sp3{width:460px;height:460px;left:30%;bottom:-180px;background:radial-gradient(circle, rgba(211,169,79,.12), transparent 65%);animation:drift-a 27s ease-in-out infinite alternate-reverse}
+@keyframes drift-a{from{transform:translate(0,0) scale(1)}to{transform:translate(70px,40px) scale(1.12)}}
+@keyframes drift-b{from{transform:translate(0,0) scale(1.05)}to{transform:translate(-60px,-50px) scale(.95)}}
+.letters{position:absolute;inset:0}
+.letters span{
+  position:absolute;font-family:'Cormorant',Georgia,serif;font-style:italic;color:var(--bone);
+  animation:float-letter linear infinite alternate;user-select:none;
+}
+@keyframes float-letter{from{transform:translateY(-18px) rotate(-5deg)}to{transform:translateY(18px) rotate(6deg)}}
+#ecg{position:fixed;left:0;bottom:0;z-index:2;width:100%;height:80px;pointer-events:none;opacity:.55}
+.grain{
+  position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
+}
+.vignette{position:fixed;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse at 50% 42%, transparent 52%, rgba(7,11,9,.55) 100%)}
+
+/* ============ shared bits ============ */
+.stamp-frame{border:2px solid currentColor;box-shadow:inset 0 0 0 3px transparent, inset 0 0 0 4px currentColor;padding:2px}
+.paper-surface{
+  background:
+    repeating-linear-gradient(0deg, transparent 0 27px, var(--paper-line) 27px 28px),
+    linear-gradient(168deg, #f4ecda 0%, var(--paper) 40%, #e8dcc0 100%);
+  box-shadow:0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.paper-ruled{
+  background:
+    linear-gradient(90deg, transparent 0 44px, rgba(196,64,47,.35) 44px 45px, transparent 45px),
+    repeating-linear-gradient(0deg, transparent 0 27px, var(--paper-line) 27px 28px),
+    linear-gradient(168deg, #f4ecda 0%, var(--paper) 40%, #e8dcc0 100%);
+}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;transition:transform .2s ease, background .2s ease, border-color .2s, box-shadow .2s, color .2s}
+.btn-seal{background:var(--seal);color:var(--bone);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;padding:16px 28px;box-shadow:0 14px 40px rgba(196,64,47,.35)}
+.btn-seal:hover{transform:translateY(-2px);background:var(--seal-deep);box-shadow:0 20px 50px rgba(196,64,47,.45)}
+.btn-seal:active{transform:translateY(0)}
+.btn-ghost{border:1px solid rgba(233,226,208,.25);color:rgba(233,226,208,.8);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;padding:15px 27px}
+.btn-ghost:hover{transform:translateY(-2px);border-color:var(--brass);color:var(--brass)}
+.icon-btn{width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(233,226,208,.15);color:rgba(233,226,208,.6);transition:all .2s}
+.icon-btn:hover{border-color:rgba(233,226,208,.4);color:var(--bone)}
+
+/* ============ animations ============ */
+@keyframes fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes rise-big{from{opacity:0;transform:translateY(26px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes stamp-in{0%{opacity:0;transform:scale(1.9) rotate(-14deg)}55%{opacity:1;transform:scale(.9) rotate(-7deg)}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+@keyframes shake-x{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes spill{0%{transform:translateY(0) rotate(0)}45%{transform:translateY(4px) rotate(28deg)}100%{transform:translateY(0) rotate(0)}}
+@keyframes timer-panic{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(211,169,79,.5)}70%{box-shadow:0 0 0 7px rgba(211,169,79,0)}}
+@keyframes score-pop{0%{transform:scale(1.28);color:var(--brass)}100%{transform:scale(1)}}
+.anim-fade-up{animation:fade-up .55s cubic-bezier(.2,.7,.2,1) both}
+.anim-rise-big{animation:rise-big .8s cubic-bezier(.2,.7,.2,1) both}
+.anim-stamp-in{animation:stamp-in .42s cubic-bezier(.2,.9,.3,1.3) both}
+.anim-shake{animation:shake-x .45s ease both}
+.anim-spill{animation:spill .55s ease both}
+.anim-timer-panic{animation:timer-panic .9s ease-in-out infinite}
+.anim-score-pop{animation:score-pop .45s ease both}
+.pulse-dot{animation:pulse-dot 1.6s ease-out infinite}
+.d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.26s}.d4{animation-delay:.38s}.d5{animation-delay:.5s}
+
+/* ============ intro ============ */
+.intro{max-width:1180px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:34px 24px 40px}
+@media(min-width:640px){.intro{padding:40px 36px 44px}}
+.intro-top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.monogram{width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;color:var(--brass);font-family:'Cormorant',serif;font-style:italic;font-weight:700;font-size:19px}
+.brand-note{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:rgba(233,226,208,.6);line-height:1.9}
+.brand-note em{font-style:normal;color:rgba(233,226,208,.35)}
+.intro-main{flex:1;display:grid;align-items:start;gap:48px;margin-top:44px}
+@media(min-width:1024px){.intro-main{grid-template-columns:7fr 5fr;gap:44px;margin-top:64px}}
+.kicker{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--brass)}
+.intro h1{font-family:'Cormorant',serif;line-height:.9;margin-top:20px}
+.intro h1 .first{display:block;font-size:clamp(1.4rem,3.4vw,2.2rem);font-weight:500;font-style:italic;color:rgba(233,226,208,.7)}
+.intro h1 .last{display:block;font-size:clamp(3.4rem,11vw,7.6rem);font-weight:700;letter-spacing:-.02em;white-space:nowrap}
+.lead-row{display:flex;align-items:center;gap:16px;margin-top:26px}
+.lead-row .bar{height:1px;width:56px;background:var(--seal);flex:none}
+.lead{font-family:'Cormorant',serif;font-style:italic;font-size:clamp(1.2rem,2.2vw,1.5rem);line-height:1.45;color:rgba(233,226,208,.8);max-width:560px}
+.rx-card{position:relative;max-width:560px;margin-top:44px;transform:rotate(-1.2deg)}
+.rx-card .inner{position:relative;color:var(--ink-on-paper);padding:26px 30px 22px}
+@media(min-width:640px){.rx-card .inner{padding:32px 38px 26px}}
+.rx-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-bottom:1px dashed rgba(38,48,43,.3);padding-bottom:12px}
+.rx-head b{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;font-weight:600}
+.rx-head span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(38,48,43,.55)}
+.rx-body{margin-top:18px;font-family:'Cormorant',serif;font-size:1.25rem;line-height:1.5}
+.rx-body .dim{color:rgba(38,48,43,.72)}
+.rx-stamp{position:absolute;right:-14px;top:-16px;transform:rotate(6deg);color:var(--seal);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;padding:7px 13px;background:rgba(239,230,207,.6);backdrop-filter:blur(2px)}
+.rx-sign{margin-top:20px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(38,48,43,.45)}
+.panel{border:1px solid rgba(233,226,208,.12);background:rgba(22,29,26,.62);backdrop-filter:blur(4px);padding:28px}
+@media(min-width:640px){.panel{padding:34px}}
+.panel h2{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--brass)}
+.rules{list-style:none;margin-top:26px;display:grid;gap:20px}
+.rules li{display:flex;gap:16px}
+.rules .n{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--seal);padding-top:2px}
+.rules p{font-size:14px;line-height:1.65;color:rgba(233,226,208,.75);transition:color .2s}
+.rules li:hover p{color:var(--bone)}
+.rules svg{display:inline-block;vertical-align:-3px;margin-right:8px;color:rgba(233,226,208,.4);transition:color .2s}
+.rules li:hover svg{color:var(--brass)}
+.score-note{margin-top:28px;border-top:1px dashed rgba(233,226,208,.15);padding-top:22px}
+.score-note .row{display:flex;justify-content:space-between;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(233,226,208,.5)}
+.score-note .row b{color:var(--bone);font-weight:500}
+.btn-start{width:100%;margin-top:24px}
+.btn-start svg{transition:transform .2s}
+.btn-start:hover svg{transform:translateX(6px)}
+.route-note{margin-top:16px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(233,226,208,.35)}
+.pull-quote{position:relative;margin-top:32px;border-left:2px solid rgba(211,169,79,.6);padding-left:20px}
+.pull-quote p{font-family:'Cormorant',serif;font-style:italic;font-size:1.15rem;line-height:1.45;color:rgba(233,226,208,.7)}
+.pull-quote cite{display:block;margin-top:12px;font-family:'IBM Plex Mono',monospace;font-style:normal;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(233,226,208,.4)}
+.intro-foot{margin-top:56px;display:flex;align-items:center;gap:16px}
+.intro-foot .line{height:1px;flex:1;background:rgba(233,226,208,.1)}
+.intro-foot span{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:rgba(233,226,208,.4);text-align:center}
+
+/* ============ game ============ */
+.game{max-width:1060px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:26px 18px 56px}
+@media(min-width:640px){.game{padding:30px 34px 60px}}
+.hud{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.hud-left{display:flex;align-items:center;gap:14px}
+.hud-left .monogram{width:42px;height:42px;font-size:17px}
+.station-note{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(233,226,208,.55);line-height:1.9}
+.station-note b{color:var(--brass);font-weight:500}
+.hud-right{display:flex;align-items:center;gap:20px}
+@media(min-width:640px){.hud-right{gap:28px}}
+.score-box{text-align:right}
+.score-box .lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(233,226,208,.45)}
+.score-box .val{font-family:'Cormorant',serif;font-weight:700;font-size:30px;line-height:1;display:inline-block}
+@media(min-width:640px){.score-box .val{font-size:36px}}
+.inkwells{display:flex;gap:6px}
+.inkwell{transition:color .3s, opacity .3s;color:var(--brass)}
+.inkwell.off{color:rgba(233,226,208,.18)}
+.hud .icon-btn{width:36px;height:36px}
+
+.route{margin-top:22px;overflow-x:auto;padding-bottom:4px}
+.route-inner{display:flex;align-items:center;min-width:max-content}
+.route-node{display:flex;flex-direction:column;align-items:center}
+.route-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(233,226,208,.25);transition:all .3s}
+.route-dot.done{border-color:var(--moss);background:var(--moss)}
+.route-dot.now{border-color:var(--brass);background:var(--brass)}
+.route-year{margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(233,226,208,.3)}
+.route-year.done{color:var(--moss)}
+.route-year.now{color:var(--brass)}
+.route-link{width:30px;height:1px;background:rgba(233,226,208,.15);margin:0 8px;margin-bottom:18px}
+@media(min-width:640px){.route-link{width:42px}}
+.route-link.done{background:rgba(125,155,95,.7)}
+.timer-track{margin-top:14px;height:4px;background:rgba(233,226,208,.1);overflow:hidden}
+.timer-fill{height:100%;transition:width .1s linear}
+.tf-ok{background:var(--teal)}.tf-mid{background:var(--brass)}.tf-low{background:var(--seal)}
+
+.qcard{position:relative;margin-top:30px;flex:1}
+.qpaper{position:relative;color:var(--ink-on-paper);padding:28px 24px 30px}
+@media(min-width:640px){.qpaper{padding:40px 42px 42px}}
+.qpaper.answered .opts{pointer-events:none}
+.q-stamp{position:absolute;right:-10px;top:-18px;z-index:20;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;padding:8px 16px;background:rgba(239,230,207,.65);transform:rotate(-8deg)}
+@media(min-width:640px){.q-stamp{right:-20px;font-size:17px}}
+.q-stamp.ok{color:var(--moss)}.q-stamp.miss{color:var(--seal)}.q-stamp.time{color:var(--brass)}
+.q-year-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px}
+.q-year{font-family:'Cormorant',serif;font-weight:700;font-size:56px;line-height:1;color:var(--seal)}
+@media(min-width:640px){.q-year{font-size:64px}}
+.q-place{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(38,48,43,.6)}
+.q-prompt{margin-top:20px;max-width:760px;font-family:'Cormorant',serif;font-weight:600;font-size:clamp(1.45rem,3vw,1.85rem);line-height:1.25}
+.opts{margin-top:28px;display:grid;gap:12px}
+@media(min-width:700px){.opts{grid-template-columns:1fr 1fr}}
+.opt{display:flex;align-items:center;gap:14px;border:1px solid rgba(38,48,43,.2);background:rgba(233,226,208,.7);padding:14px 16px;text-align:left;transition:transform .2s, border-color .2s, box-shadow .2s, background .2s, opacity .3s}
+.opt:not(:disabled):hover{transform:translateY(-2px);border-color:var(--seal);box-shadow:0 10px 24px rgba(34,51,50,.18)}
+.opt .letter{flex:none;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(38,48,43,.3);color:rgba(38,48,43,.6);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;transition:all .2s}
+.opt:not(:disabled):hover .letter{border-color:var(--seal);color:var(--seal)}
+.opt .txt{font-family:'Cormorant',serif;font-weight:500;font-size:1.12rem;line-height:1.3}
+.opt.is-correct{border-color:var(--moss);background:rgba(125,155,95,.14)}
+.opt.is-correct .letter{border-color:var(--moss);background:var(--moss);color:var(--bone)}
+.opt.is-wrong{border-color:var(--seal);background:rgba(196,64,47,.1)}
+.opt.is-wrong .letter{border-color:var(--seal);background:var(--seal);color:var(--bone)}
+.opt.is-dim{border-color:rgba(38,48,43,.12);background:rgba(233,226,208,.4);opacity:.45}
+.opt.is-picked{border-color:var(--brass);background:rgba(211,169,79,.18)}
+.opt.is-picked .letter{border-color:var(--brass);background:var(--brass);color:var(--ink)}
+.opt-hint{margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:rgba(38,48,43,.5)}
+.link-btn{margin-top:16px;display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:rgba(38,48,43,.55);text-decoration:underline;text-underline-offset:4px;transition:color .2s}
+.link-btn:hover{color:var(--seal)}
+
+.fact{margin-top:22px;display:grid;gap:20px}
+@media(min-width:1024px){.fact{grid-template-columns:1fr auto;align-items:start}}
+.fact-paper{position:relative;overflow:hidden;color:var(--ink-on-paper);padding:22px 26px 20px 56px;box-shadow:0 18px 45px rgba(0,0,0,.45)}
+@media(min-width:640px){.fact-paper{padding:24px 38px 22px 64px}}
+.fact-kicker{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--teal)}
+.fact-text{margin-top:10px;max-width:720px;font-family:'Cormorant',serif;font-size:1.15rem;line-height:1.7}
+.fact-meta{margin-top:16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.chip-points{padding:5px 11px;font-weight:600;color:var(--bone)}
+.chip-points.win{background:var(--moss)}
+.chip-points.zero{background:rgba(196,64,47,.9)}
+.fact-meta .note{color:rgba(38,48,43,.55);display:inline-flex;align-items:center;gap:6px}
+.fact .btn-seal{white-space:nowrap;align-self:start}
+@media(min-width:1024px){.fact .btn-seal{margin-top:4px}}
+.fact .btn-seal svg{transition:transform .2s}
+.fact .btn-seal:hover svg{transform:translateX(6px)}
+
+/* ============ results ============ */
+.results{max-width:1180px;margin:0 auto;padding:44px 22px 64px}
+@media(min-width:640px){.results{padding:48px 36px 70px}}
+.res-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px}
+.res-top h1{font-family:'Cormorant',serif;font-weight:700;font-size:clamp(2.4rem,6vw,4.4rem);line-height:1;margin-top:12px}
+.res-note{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(233,226,208,.4)}
+.res-note .warn{color:var(--seal)}
+.res-grid{margin-top:40px;display:grid;gap:40px}
+@media(min-width:1024px){.res-grid{grid-template-columns:7fr 5fr}}
+.rank-panel{position:relative;border:1px solid rgba(233,226,208,.12);background:rgba(22,29,26,.62);backdrop-filter:blur(4px);padding:30px}
+@media(min-width:640px){.rank-panel{padding:38px}}
+.rank-row{display:flex;flex-wrap:wrap;align-items:center;gap:24px}
+.rank-stamp{font-family:'IBM Plex Mono',monospace;font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:19px;padding:11px 18px;transform:rotate(-4deg)}
+@media(min-width:640px){.rank-stamp{font-size:21px}}
+.rank-title{font-family:'Cormorant',serif;font-weight:600;font-size:clamp(1.5rem,3vw,2rem)}
+.rank-text{margin-top:20px;max-width:620px;line-height:1.7;color:rgba(233,226,208,.75)}
+.stats{margin-top:32px;border-top:1px dashed rgba(233,226,208,.15);padding-top:24px;display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:0 16px}
+.stat:first-child{padding-left:0}.stat:last-child{padding-right:0}
+.stat + .stat{border-left:1px solid rgba(233,226,208,.1)}
+.stat .lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(233,226,208,.45)}
+.stat .val{margin-top:6px;font-family:'Cormorant',serif;font-weight:700;font-size:clamp(2.2rem,4vw,3rem);line-height:1}
+.stat .val small{font-size:.55em;color:rgba(233,226,208,.4)}
+.stat .val.gold{color:var(--brass)}
+.section-title{margin-top:40px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--brass)}
+.review{list-style:none;margin-top:18px;display:grid;gap:10px}
+.review li{display:flex;align-items:flex-start;gap:16px;border:1px solid rgba(233,226,208,.1);background:rgba(22,29,26,.4);padding:15px 17px;transition:border-color .2s, background .2s}
+.review li:hover{border-color:rgba(233,226,208,.25);background:rgba(22,29,26,.7)}
+.mark{flex:none;margin-top:2px;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border:1px solid}
+.mark.ok{border-color:var(--moss);background:rgba(125,155,95,.2);color:var(--moss)}
+.mark.no{border-color:var(--seal);background:rgba(196,64,47,.15);color:var(--seal)}
+.rev-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px}
+.rev-head .st{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(211,169,79,.8)}
+.rev-head .pts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(233,226,208,.35)}
+.rev-q{margin-top:5px;font-family:'Cormorant',serif;font-weight:600;font-size:1.05rem;line-height:1.35;color:rgba(233,226,208,.9)}
+.rev-a{margin-top:5px;font-size:13.5px}
+.rev-a.mine{color:rgba(233,226,208,.55)}
+.rev-a.missed{color:rgba(196,64,47,.9)}
+.rev-a.right{color:var(--moss)}
+.rev-missed-note{border:1px dashed rgba(233,226,208,.15);padding:15px 17px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(233,226,208,.4)}
+.res-actions{margin-top:40px;display:flex;flex-wrap:wrap;gap:16px}
+.res-actions .btn svg{transition:transform .3s}
+.res-actions .btn-seal:hover svg{transform:rotate(-360deg)}
+.res-actions .btn-ghost:hover svg{transform:translateX(-4px)}
+.bio{border:1px solid rgba(233,226,208,.12);background:rgba(22,29,26,.5);backdrop-filter:blur(4px);padding:28px}
+@media(min-width:640px){.bio{padding:32px}}
+.bio h3{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--brass)}
+.bio ol{list-style:none;margin-top:24px}
+.bio li{position:relative;display:flex;gap:20px;padding-bottom:22px}
+.bio li:last-child{padding-bottom:0}
+.bio li::before{content:"";position:absolute;left:5px;top:17px;bottom:0;width:1px;background:rgba(233,226,208,.12);transition:background .2s}
+.bio li:last-child::before{display:none}
+.bio li:hover::before{background:rgba(211,169,79,.4)}
+.bio .dot{flex:none;margin-top:5px;width:11px;height:11px;border-radius:50%;border:2px solid var(--brass);background:var(--ink);transition:background .2s}
+.bio li:hover .dot{background:var(--brass)}
+.bio .yr{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.2em;color:var(--brass);text-transform:uppercase}
+.bio .tx{margin-top:5px;font-size:13.5px;line-height:1.65;color:rgba(233,226,208,.75)}
+.rx-home{margin-top:32px;transform:rotate(1deg)}
+.rx-home .inner{color:var(--ink-on-paper);padding:26px 30px}
+.rx-home h3{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:1px dashed rgba(38,48,43,.3);padding-bottom:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.3em;text-transform:uppercase;font-weight:600}
+.rx-home h3 span{font-size:10px;letter-spacing:.18em;color:rgba(38,48,43,.55);font-weight:400}
+.rx-list{list-style:none;margin-top:18px;display:grid;gap:15px}
+.rx-list li{display:flex;gap:12px}
+.rx-list .rp{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--seal);padding-top:3px}
+.rx-list .work{font-family:'Cormorant',serif;font-weight:600;font-size:1.15rem;line-height:1.25}
+.rx-list .note{font-size:13.5px;font-style:italic;color:rgba(38,48,43,.6)}
+.rx-home .foot{margin-top:20px;border-top:1px dashed rgba(38,48,43,.3);padding-top:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(38,48,43,.45)}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient" aria-hidden="true">
+  <div class="ink-splotch sp1"></div>
+  <div class="ink-splotch sp2"></div>
+  <div class="ink-splotch sp3"></div>
+  <div class="letters" id="letters"></div>
+</div>
+<canvas id="ecg" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div id="app"></div>
+<noscript><p style="padding:40px;font-family:Georgia,serif">Для игры необходим JavaScript.</p></noscript>
+
+<script>
+"use strict";
+/* ================= data ================= */
+const QUESTIONS = [
+  {id:"name",kind:"choice",year:"1867",place:"Тула",label:"Начало пути",
+   prompt:"Под каким именем вошёл в литературу автор «Записок врача»?",
+   options:[{id:"a",text:"Викентий Смидович"},{id:"b",text:"Владимир Вершинин"},{id:"c",text:"Валентин Смольников"},{id:"d",text:"Василий Светлов"}],
+   answer:"a",
+   fact:"Настоящее имя писателя — Викентий Викентьевич Смидович. Он родился 4 (16) января 1867 года в Туле, в семье врача. Псевдоним «Вересаев» закрепился за ним с 1894 года."},
+  {id:"debut",kind:"choice",year:"1885",place:"Петербург",label:"Первая публикация",
+   prompt:"В каком издании студент Смидович впервые выступил в печати — со стихами?",
+   options:[{id:"a",text:"«Модный магазин»"},{id:"b",text:"«Русское богатство»"},{id:"c",text:"«Осколки»"},{id:"d",text:"«Мир Божий»"}],
+   answer:"a",
+   fact:"Дебют состоялся в 1885 году на страницах петербургского журнала «Модный магазин». Позже Вересаев сознательно оставил стихи ради прозы."},
+  {id:"university",kind:"choice",year:"1888",place:"Дерпт",label:"Университеты",
+   prompt:"Где будущий писатель получил медицинское образование?",
+   options:[{id:"a",text:"В Казанском университете"},{id:"b",text:"В Московском университете"},{id:"c",text:"В Дерптском университете"},{id:"d",text:"В Военно-медицинской академии"}],
+   answer:"c",
+   fact:"Начав в 1884 году на историко-филологическом факультете Петербургского университета, он в 1888-м перешёл на медицинский факультет Дерптского (ныне Тартуского) университета и окончил его в 1894 году."},
+  {id:"notes",kind:"choice",year:"1900",place:"Петербург",label:"Скандал",
+   prompt:"Какая книга сделала врача Вересаева знаменитым — и вызвала бурную полемику о медицине?",
+   options:[{id:"a",text:"«Записки охотника»"},{id:"b",text:"«Записки врача»"},{id:"c",text:"«Записки сумасшедшего»"},{id:"d",text:"«Записки из Мёртвого дома»"}],
+   answer:"b",
+   fact:"«Записки врача» печатались в журнале «Мир Божий» в 1900–1901 годах и вызвали ожесточённые споры о положении медицины и врачебной совести. Книга разошлась огромными тиражами."},
+  {id:"war",kind:"choice",year:"1904",place:"Маньчжурия",label:"Фронт",
+   prompt:"На какой войне Вересаев служил военным врачом санитарного отряда?",
+   options:[{id:"a",text:"На Крымской"},{id:"b",text:"На Кавказской"},{id:"c",text:"На Балканской"},{id:"d",text:"На русско-японской"}],
+   answer:"d",
+   fact:"В 1904–1905 годах Вересаев воевал в Маньчжурии врачом санитарного отряда. Горький фронтовой опыт лёг в «Рассказы о японской войне», вышедшие в 1908 году."},
+  {id:"pseudonym",kind:"choice",year:"1894",place:"Петербург",label:"Имя",
+   prompt:"Откуда, по самой распространённой версии, взялся псевдоним «Вересаев»?",
+   options:[{id:"a",text:"От села Вересаево под Тулой"},{id:"b",text:"От латинских vere — «истинно» и saevus — «суровый»"},{id:"c",text:"От реки Вересы"},{id:"d",text:"Это анаграмма фамилии"}],
+   answer:"b",
+   fact:"Сам писатель происхождение псевдонима не разъяснял. Наиболее известна версия о латинских словах vere («истинно») и saevus («суровый») — «истинно суровый», хотя существуют и другие толкования."},
+  {id:"deadlock",kind:"choice",year:"1921",place:"Москва",label:"Революция",
+   prompt:"Какой роман о судьбе московской семьи в годы Гражданской войны Вересаев написал в 1920–1921 годах?",
+   options:[{id:"a",text:"«Два мира»"},{id:"b",text:"«Хождение по мукам»"},{id:"c",text:"«В тупике»"},{id:"d",text:"«Белая гвардия»"}],
+   answer:"c",
+   fact:"Роман «В тупике» написан в 1920–1921 годах, а в 1922-м вышел за границей. Это семейная хроника, показавшая революцию без плакатной однозначности."},
+  {id:"pushkin",kind:"choice",year:"1926",place:"Москва",label:"Пушкиниана",
+   prompt:"Как называется книга-монтаж из документов и свидетельств современников, вышедшая в 1926–1927 годах?",
+   options:[{id:"a",text:"«Мой Пушкин»"},{id:"b",text:"«Пушкин в жизни»"},{id:"c",text:"«Пушкин в изгнании»"},{id:"d",text:"«Жизнь Пушкина»"}],
+   answer:"b",
+   fact:"«Пушкин в жизни» (1926–1927) составлен из мемуаров, писем и документов без авторского пересказа. Позже появились «Спутники Пушкина» и «Замыслы Пушкина»."},
+  {id:"memoirs",kind:"choice",year:"1933",place:"Москва",label:"Память",
+   prompt:"Какие воспоминания о детстве, Туле и своей семье Вересаев печатал в «Знамени» в 1933–1934 годах?",
+   options:[{id:"a",text:"«Повесть о детстве»"},{id:"b",text:"«Лето Господне»"},{id:"c",text:"«Далёкое»"},{id:"d",text:"«Невыдуманные рассказы о прошлом»"}],
+   answer:"d",
+   fact:"«Невыдуманные рассказы о прошлом» выходили в журнале «Знамя» в 1933–1934 годах: живые картины тульского детства, портреты родных и врачей отцовской больницы."},
+  {id:"homer",kind:"choice",year:"1939",place:"Москва",label:"Переводы",
+   prompt:"Перевод какого античного автора Вересаев завершил к концу жизни — и получил за него Государственную премию 1943 года?",
+   options:[{id:"a",text:"Гомера"},{id:"b",text:"Вергилия"},{id:"c",text:"Овидия"},{id:"d",text:"Софокла"}],
+   answer:"a",
+   fact:"Вересаев перевёл «Илиаду» и «Одиссею» Гомера с древнегреческого. За перевод «Илиады» ему была присуждена Сталинская (Государственная) премия 1943 года."},
+  {id:"trilogy",kind:"choice",year:"1931",place:"Москва",label:"Трилогия",
+   prompt:"Из каких романов состоит семейная трилогия «Семейные тайны»?",
+   options:[{id:"a",text:"«Отцы», «Дети», «Внуки»"},{id:"b",text:"«Сестры», «Братья», «Утро»"},{id:"c",text:"«Детство», «Отрочество», «Юность»"},{id:"d",text:"«Мать», «Отец», «Дом»"}],
+   answer:"b",
+   fact:"«Сестры» (1931), «Братья» (1933) и завершающее «Утро» составили трилогию «Семейные тайны» — хронику нескольких поколений на рубеже эпох."},
+  {id:"museum",kind:"choice",year:"1995",place:"Тула",label:"Память",
+   prompt:"В каком году в Туле открылся музей Викентия Вересаева?",
+   options:[{id:"a",text:"В 1967 году"},{id:"b",text:"В 1980 году"},{id:"c",text:"В 1995 году"},{id:"d",text:"В 2007 году"}],
+   answer:"c",
+   fact:"Музей открылся в 1995 году в доме, связанном с семьёй Смидовичей. Сегодня это филиал Тульского музейного объединения с экспозицией о жизни и творчестве писателя."},
+  {id:"chronology",kind:"order",year:"1895–1931",place:"Хронология",label:"Порядок книг",
+   prompt:"Расставьте книги Вересаева в порядке их выхода — от первой к последней:",
+   options:[{id:"o1",text:"«Без дороги»"},{id:"o2",text:"«Записки врача»"},{id:"o3",text:"«В тупике»"},{id:"o4",text:"«Пушкин в жизни»"},{id:"o5",text:"«Сестры»"}],
+   answer:null,
+   fact:"«Без дороги» — 1895, «Записки врача» — 1900–1901, «В тупике» — 1922, «Пушкин в жизни» — 1926–1927, «Сестры» — 1931. Пять книг — почти вся история России на переломе."}
+];
+
+const BIOGRAPHY = [
+  {year:"1867",text:"Родился 4 (16) января в Туле, в семье врача Викентия Игнатьевича Смидовича."},
+  {year:"1884–1894",text:"Петербургский университет (историко-филологический факультет), затем медицинский факультет Дерптского университета. В 1885-м — первая публикация."},
+  {year:"1895",text:"Повесть «Без дороги» — о «лишних людях» эпохи. Начало большой прозы; с 1894 года подписывается «В. Вересаев»."},
+  {year:"1900–1901",text:"«Записки врача» в «Мире Божьем»: полемика о медицине, врачебной совести и цене чужой жизни."},
+  {year:"1904–1905",text:"Военный врач санитарного отряда на русско-японской войне, в Маньчжурии. Итог — «Рассказы о японской войне»."},
+  {year:"1920–1922",text:"Роман «В тупике»: московская семья в огне Гражданской войны, без плакатных ответов."},
+  {year:"1926–1934",text:"Пушкиниана («Пушкин в жизни», «Спутники Пушкина») и «Невыдуманные рассказы о прошлом»."},
+  {year:"1931–1940",text:"Трилогия «Семейные тайны»: «Сестры», «Братья», «Утро» — хроника поколений на сломе эпох."},
+  {year:"1939–1945",text:"Переводы Гомера: «Илиада» (Сталинская премия 1943 года) и «Одиссея». Скончался 3 июня 1945 года в Москве."}
+];
+
+const PRESCRIPTION = [
+  {work:"«Без дороги»",note:"точка отсчёта: кризис поколения 1890-х"},
+  {work:"«Записки врача»",note:"главная книга о врачебной совести"},
+  {work:"«В тупике»",note:"роман-хроника о Гражданской войне"},
+  {work:"«Пушкин в жизни»",note:"Пушкин — глазами современников"},
+  {work:"«Невыдуманные рассказы о прошлом»",note:"тульское детство крупным планом"}
+];
+
+const LETTERS = ["а","б","в","г","е","ж","з","и","к","л","м","н","о","п","р","с","т","у","ф","ц","ч","ъ","ы","ь","э","ю","я","Ѣ","Ѳ"];
+const TIME_PER_Q = 20;
+
+/* ================= state ================= */
+const state = {
+  questions:[], idx:0, score:0, lives:3, streak:0, bestStreak:0,
+  records:[], timeLeft:TIME_PER_Q, answered:null, orderSel:[],
+  timerId:null, finished:false, muted:false
+};
+
+const RM = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = (s, el=document) => el.querySelector(s);
+const app = document.getElementById("app");
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+/* ================= sound ================= */
+let AC = null;
+function audioCtx(){
+  if(!AC){ const C = window.AudioContext || window.webkitAudioContext; if(C) AC = new C(); }
+  if(AC && AC.state === "suspended") AC.resume();
+  return AC;
+}
+function tone(ctx,o){
+  const t0 = ctx.currentTime + (o.delay||0);
+  const osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.type = o.type||"sine";
+  osc.frequency.setValueAtTime(o.freq, t0);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(30, o.end||o.freq), t0+o.dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(o.gain||0.12, t0+0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+o.dur);
+  osc.connect(g).connect(ctx.destination);
+  osc.start(t0); osc.stop(t0+o.dur+0.05);
+}
+function play(kind){
+  if(state.muted) return;
+  const ctx = audioCtx(); if(!ctx) return;
+  switch(kind){
+    case "click": tone(ctx,{freq:340,end:300,dur:0.07,type:"triangle",gain:0.07}); break;
+    case "tick": tone(ctx,{freq:880,dur:0.03,type:"square",gain:0.03}); break;
+    case "stamp": tone(ctx,{freq:130,end:55,dur:0.14,gain:0.28}); tone(ctx,{freq:2400,end:700,dur:0.05,type:"square",gain:0.04}); break;
+    case "correct":
+      tone(ctx,{freq:523.25,dur:0.12,gain:0.1});
+      tone(ctx,{freq:783.99,dur:0.16,gain:0.1,delay:0.09});
+      tone(ctx,{freq:1046.5,dur:0.22,gain:0.07,delay:0.18}); break;
+    case "wrong":
+      tone(ctx,{freq:196,end:110,dur:0.28,type:"sawtooth",gain:0.08});
+      tone(ctx,{freq:98,end:70,dur:0.3,gain:0.1,delay:0.02}); break;
+    case "start":
+      [392,493.88,587.33,783.99].forEach((f,i)=>tone(ctx,{freq:f,dur:0.14,type:"triangle",gain:0.09,delay:i*0.09})); break;
+  }
+}
+
+/* ================= icons ================= */
+const I = {
+  arrowR:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  arrowL:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>',
+  check:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 7"/></svg>',
+  x:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  reset:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>',
+  volOn:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12"/></svg>',
+  volOff:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M16 9l5 6M21 9l-5 6"/></svg>',
+  scroll:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h9a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3H8a3 3 0 0 0-3 3v2H4a2 2 0 0 0-2 2v8a3 3 0 0 0 3 3z"/><path d="M8 21a3 3 0 0 1-3-3v-8"/></svg>',
+  timer:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>',
+  drop:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>',
+  feather:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 3.8a6 6 0 0 0-8.5 0L5 10.5V19h8.5l6.7-6.7a6 6 0 0 0 0-8.5z"/><path d="M16 8 3 21M14.5 9.5 19 14"/></svg>',
+  inkwell:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v4h-4z"/><path d="M8 7h8c.6 1.6 1.5 2.6 1.5 4.5V17a4 4 0 0 1-4 4h-3a4 4 0 0 1-4-4v-5.5C6.5 9.6 7.4 8.6 8 7Z"/></svg>',
+  inkwellFull:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v4h-4z"/><path d="M8 7h8c.6 1.6 1.5 2.6 1.5 4.5V17a4 4 0 0 1-4 4h-3a4 4 0 0 1-4-4v-5.5C6.5 9.6 7.4 8.6 8 7Z"/><path d="M7 14h10v3a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3v-3Z" fill="currentColor" stroke="none" opacity=".85"/></svg>'
+};
+function muteBtn(extra){ return `<button class="icon-btn ${extra||""}" data-action="mute" aria-label="Звук">${state.muted?I.volOff:I.volOn}</button>`; }
+
+/* ================= ambient ================= */
+function buildAmbient(){
+  const box = document.getElementById("letters");
+  for(let i=0;i<26;i++){
+    const s = document.createElement("span");
+    s.textContent = LETTERS[Math.floor(Math.random()*LETTERS.length)];
+    const size = 18 + Math.random()*52;
+    s.style.left = (Math.random()*100)+"%";
+    s.style.top = (Math.random()*100)+"%";
+    s.style.fontSize = size+"px";
+    s.style.opacity = (0.05 + Math.random()*0.09).toFixed(2);
+    s.style.animationDuration = (14 + Math.random()*18)+"s";
+    s.style.animationDelay = (-Math.random()*20)+"s";
+    if(RM) s.style.animation = "none";
+    box.appendChild(s);
+  }
+  const cv = document.getElementById("ecg");
+  const c = cv.getContext("2d");
+  function resize(){ cv.width = window.innerWidth; cv.height = 80; }
+  resize(); window.addEventListener("resize", resize);
+  let off = 0;
+  const period = 240;
+  function wave(p){
+    if(p<0.40) return 0;
+    if(p<0.44) return -7;
+    if(p<0.48) return 30;
+    if(p<0.52) return -12;
+    if(p<0.58) return 9;
+    return 0;
+  }
+  function draw(){
+    c.clearRect(0,0,cv.width,cv.height);
+    c.beginPath();
+    const base = cv.height-26;
+    for(let x=0;x<=cv.width;x+=2){
+      const p = (((x+off) % period)+period)%period / period;
+      const y = base - wave(p);
+      x===0 ? c.moveTo(x,y) : c.lineTo(x,y);
+    }
+    c.strokeStyle = "rgba(79,155,141,.55)";
+    c.lineWidth = 1.5;
+    c.shadowColor = "rgba(79,155,141,.6)";
+    c.shadowBlur = 6;
+    c.stroke();
+  }
+  if(RM){ draw(); return; }
+  (function loop(){ off += 1.3; draw(); requestAnimationFrame(loop); })();
+}
+
+/* ================= screens ================= */
+function renderIntro(){
+  clearTimer();
+  app.innerHTML = `
+  <div class="intro">
+    <header class="intro-top">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="stamp-frame monogram">ВВ</span>
+        <div class="brand-note">Литературная игра<br><em>по жизни и книгам</em></div>
+      </div>
+      ${muteBtn()}
+    </header>
+
+    <main class="intro-main">
+      <section>
+        <p class="kicker anim-fade-up">1867 — 1945 · писатель и врач</p>
+        <h1 class="anim-rise-big">
+          <span class="first">Викентий</span>
+          <span class="last">Вересаев</span>
+        </h1>
+        <div class="lead-row anim-fade-up d2">
+          <span class="bar"></span>
+          <p class="lead">Стетоскоп в одной руке, перо — в другой. Пройдите его путь и проверьте, знаете ли вы книги, написанные по обеим сторонам стола.</p>
+        </div>
+
+        <div class="rx-card anim-fade-up d3">
+          <div class="paper-surface inner">
+            <div class="rx-head"><b>Рецепт</b><span>№ 1867 · Тула</span></div>
+            <div class="rx-body">
+              <p><i><b>Rp.:</b></i> Викентия Вересаева — сочинения и переводы</p>
+              <p class="dim"><i><b>D.&thinsp;S.:</b></i> принимать ежедневно, вдумчиво; курс — вся жизнь</p>
+            </div>
+            <div class="rx-stamp stamp-frame anim-stamp-in">Отпущено</div>
+            <p class="rx-sign">Подпись: В. В. Смидович-Вересаев</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="anim-fade-up d4">
+        <div class="panel">
+          <h2>Анамнез игры</h2>
+          <ul class="rules">
+            <li><span class="n">01</span><p>${I.scroll}Десять станций жизненного пути — от Тулы 1867 года до Москвы 1945-го.</p></li>
+            <li><span class="n">02</span><p>${I.timer}На вопрос — ${TIME_PER_Q} секунд. Чем быстрее ответ, тем щедрее бонус к очкам.</p></li>
+            <li><span class="n">03</span><p>${I.drop}Три чернильницы: ошибка или промедление проливает одну. Опустеют все — обход прервётся.</p></li>
+            <li><span class="n">04</span><p>${I.feather}После каждого ответа — справка с подлинным фактом: игра оставляет знания, а не только счёт.</p></li>
+          </ul>
+          <div class="score-note">
+            <div class="row"><span>Очки за верный ответ</span><b>10 + до 5 за скорость</b></div>
+            <button class="btn btn-seal btn-start" data-action="start">Начать обход ${I.arrowR}</button>
+            <p class="route-note">Маршрут: Тула → Петербург → Дерпт → Маньчжурия → Москва</p>
+          </div>
+        </div>
+
+        <blockquote class="pull-quote anim-fade-up d5">
+          <p>Он выбрал две самые требовательные профессии и не изменил ни одной — ни халату, ни рукописи.</p>
+          <cite>о враче и писателе Викентии Вересаеве</cite>
+        </blockquote>
+      </section>
+    </main>
+
+    <footer class="intro-foot">
+      <span class="line"></span>
+      <span>Викентий Викентьевич Смидович · псевдоним — Вересаев</span>
+      <span class="line"></span>
+    </footer>
+  </div>`;
+}
+
+function startGame(){
+  play("start");
+  state.questions = shuffle(QUESTIONS).slice(0,10).sort((a,b)=>{
+    const ya = parseInt(a.year,10), yb = parseInt(b.year,10);
+    return ya===yb ? a.year.localeCompare(b.year,"ru") : ya-yb;
+  });
+  state.idx=0; state.score=0; state.lives=3; state.streak=0; state.bestStreak=0;
+  state.records=[]; state.answered=null; state.finished=false;
+  renderGame();
+}
+
+function currentQ(){ return state.questions[state.idx]; }
+
+function renderGame(){
+  clearTimer();
+  const q = currentQ();
+  state.answered = null; state.finished = false;
+  state.timeLeft = TIME_PER_Q; state.orderSel = [];
+  const isLast = state.idx+1 >= state.questions.length;
+  const opts = shuffle(q.options);
+  const RU = ["А","Б","В","Г","Д"];
+
+  const optsHtml = q.kind === "choice"
+    ? `<div class="opts">${opts.map((o,i)=>`
+        <button class="opt" data-action="choice" data-id="${o.id}">
+          <span class="letter">${RU[i]}</span><span class="txt">${o.text}</span>
+        </button>`).join("")}</div>`
+    : `<p class="opt-hint">Нажимайте карточки по порядку — позиция присвоится сама</p>
+       <div class="opts">${opts.map(o=>`
+        <button class="opt" data-action="chip" data-id="${o.id}">
+          <span class="letter">·</span><span class="txt">${o.text}</span>
+        </button>`).join("")}</div>
+       <button class="link-btn" data-action="reset-order" id="resetOrder" style="display:none">${I.reset} Сбросить порядок</button>`;
+
+  app.innerHTML = `
+  <div class="game">
+    <header class="hud">
+      <div class="hud-left">
+        <span class="stamp-frame monogram">ВВ</span>
+        <div class="station-note">Станция ${state.idx+1} / ${state.questions.length}<br><b>${q.year} · ${q.place}</b></div>
+      </div>
+      <div class="hud-right">
+        <div class="score-box"><div class="lbl">Очки</div><div class="val" id="scoreVal">${state.score}</div></div>
+        <div class="inkwells" id="inkwells" title="Чернильницы">
+          ${[0,1,2].map(i=>`<span class="inkwell" data-i="${i}">${I.inkwellFull}</span>`).join("")}
+        </div>
+        ${muteBtn()}
+      </div>
+    </header>
+
+    <div class="route"><div class="route-inner">
+      ${state.questions.map((qq,i)=>`
+        <div class="route-node">
+          <span class="route-dot ${i<state.idx?"done":i===state.idx?"now pulse-dot":""}"></span>
+          <span class="route-year ${i<state.idx?"done":i===state.idx?"now":""}">${qq.year.split("–")[0]}</span>
+        </div>
+        ${i<state.questions.length-1?`<span class="route-link ${i<state.idx?"done":""}"></span>`:""}`).join("")}
+    </div></div>
+
+    <div class="timer-track"><div class="timer-fill tf-ok" id="tfill" style="width:100%"></div></div>
+
+    <main class="qcard">
+      <div class="qpaper paper-surface anim-fade-up" id="qpaper">
+        <div class="q-year-row">
+          <span class="q-year">${q.year}</span>
+          <span class="q-place">${q.place} · ${q.label}</span>
+        </div>
+        <h2 class="q-prompt">${q.prompt}</h2>
+        ${optsHtml}
+      </div>
+      <div class="fact" id="fact" style="display:none"></div>
+    </main>
+  </div>`;
+
+  state.lastTick = -1;
+  state.timerId = window.setInterval(()=>{
+    if(state.answered) return;
+    state.timeLeft = Math.max(0, +(state.timeLeft - 0.1).toFixed(2));
+    updateTimerBar();
+    const c = Math.ceil(state.timeLeft);
+    if(!state.answered && state.timeLeft <= 5.05 && c !== state.lastTick){ state.lastTick = c; play("tick"); }
+    if(state.timeLeft === 0 && !state.answered) finish(null);
+  }, 100);
+}
+
+function updateTimerBar(){
+  const el = document.getElementById("tfill"); if(!el) return;
+  const t = state.timeLeft;
+  el.style.width = (t/TIME_PER_Q*100)+"%";
+  el.className = "timer-fill " + (t>8?"tf-ok":t>4?"tf-mid":"tf-low") + (!state.answered && t<=4 ? " anim-timer-panic" : "");
+}
+
+function clearTimer(){ if(state.timerId){ window.clearInterval(state.timerId); state.timerId = null; } }
+
+function pickChoice(id){
+  if(state.answered) return;
+  play("click");
+  finish([id]);
+}
+
+function pickChip(id){
+  const q = currentQ();
+  if(state.answered || state.finished) return;
+  if(state.orderSel.length >= q.options.length) return;
+  play("click");
+  state.orderSel = state.orderSel.includes(id) ? state.orderSel.filter(s=>s!==id) : [...state.orderSel, id];
+  refreshChips();
+  if(state.orderSel.length === q.options.length){
+    const snap = state.orderSel.slice();
+    window.setTimeout(()=>finish(snap), 220);
+  }
+}
+
+function refreshChips(){
+  const q = currentQ();
+  const btns = document.querySelectorAll('.opt[data-action="chip"]');
+  btns.forEach(b=>{
+    const id = b.dataset.id;
+    const pos = state.orderSel.indexOf(id);
+    b.querySelector(".letter").textContent = pos>=0 ? pos+1 : "·";
+    b.classList.toggle("is-picked", pos>=0);
+  });
+  const r = document.getElementById("resetOrder");
+  if(r) r.style.display = (state.orderSel.length>0 && state.orderSel.length<q.options.length) ? "" : "none";
+}
+
+function finish(chosenIds){
+  if(state.answered || state.finished) return;
+  const q = currentQ();
+  const correctIds = q.kind==="order" ? q.options.map(o=>o.id) : [q.answer];
+  const correct = chosenIds !== null && chosenIds.length === correctIds.length &&
+    chosenIds.every((id,i)=> q.kind==="order" ? id===correctIds[i] : id===correctIds[0]);
+  const bonus = correct ? Math.min(5, Math.max(0, Math.ceil(state.timeLeft/4))) : 0;
+  const gained = correct ? 10+bonus : 0;
+  const timedOut = chosenIds === null;
+
+  state.answered = {chosenIds, correct, gained, timedOut};
+  state.records.push({question:q, chosenIds, correct, gained});
+  state.score += gained;
+
+  const paper = document.getElementById("qpaper");
+  paper.classList.add("answered");
+
+  /* buttons feedback */
+  document.querySelectorAll(".opt").forEach(b=>{
+    const id = b.dataset.id;
+    const isCorrect = q.kind==="order" ? false : id===q.answer;
+    const isChosen = chosenIds ? chosenIds.includes(id) : false;
+    const letter = b.querySelector(".letter");
+    if(q.kind==="order"){
+      const correctPos = q.options.findIndex(o=>o.id===id);
+      letter.textContent = correctPos+1;
+      const pickedRight = chosenIds && chosenIds[correctPos] === id;
+      b.classList.add(pickedRight ? "is-correct" : "is-dim");
+    } else {
+      if(isCorrect){ b.classList.add("is-correct"); letter.innerHTML = I.check; }
+      else if(isChosen){ b.classList.add("is-wrong","anim-shake"); letter.innerHTML = I.x; }
+      else b.classList.add("is-dim");
+    }
+    b.disabled = true;
+  });
+
+  /* stamp */
+  const kind = correct ? "ok" : timedOut ? "time" : "miss";
+  const stampText = {ok:"Верно", miss:"Мимо", time:"Время вышло"}[kind];
+  const st = document.createElement("div");
+  st.className = `q-stamp stamp-frame anim-stamp-in ${kind}`;
+  st.textContent = stampText;
+  paper.appendChild(st);
+
+  /* score + lives */
+  const sv = document.getElementById("scoreVal");
+  sv.textContent = state.score;
+  sv.classList.remove("anim-score-pop"); void sv.offsetWidth; sv.classList.add("anim-score-pop");
+
+  if(correct){
+    state.streak += 1;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+    window.setTimeout(()=>play("stamp"), 30);
+    window.setTimeout(()=>play("correct"), 160);
+  } else {
+    state.streak = 0;
+    state.lives -= 1;
+    window.setTimeout(()=>play("stamp"), 30);
+    window.setTimeout(()=>play("wrong"), 160);
+    const wells = document.querySelectorAll(".inkwell");
+    const spilled = wells[state.lives];
+    if(spilled){
+      spilled.classList.add("anim-spill");
+      setTimeout(()=>{ spilled.classList.add("off"); spilled.classList.remove("anim-spill");
+        spilled.innerHTML = I.inkwell; }, 420);
+    }
+  }
+
+  /* fact panel */
+  const isLast = state.idx+1 >= state.questions.length;
+  const nextLabel = (isLast || state.lives<=0) ? "К итогам обхода" : "Следующая станция";
+  const kicker = timedOut ? "Справка · время вышло" : correct ? "Справка · зачтено" : "Справка · не зачтено";
+  const fact = document.getElementById("fact");
+  fact.innerHTML = `
+    <div class="fact-paper paper-ruled anim-fade-up">
+      <div class="fact-kicker">${kicker}</div>
+      <p class="fact-text">${q.fact}</p>
+      <div class="fact-meta">
+        <span class="chip-points ${correct?"win":"zero"}">${correct?`+${gained} очков`:"0 очков"}</span>
+        ${correct && gained>10 ? `<span class="note">в том числе +${gained-10} за скорость</span>` : ""}
+        ${correct && state.streak>1 ? `<span class="note">серия: ${state.streak}</span>` : ""}
+        <span class="note">${I.drop} чернил осталось: ${state.lives}</span>
+      </div>
+    </div>
+    <button class="btn btn-seal anim-fade-up d1" data-action="next">${nextLabel} ${I.arrowR}</button>`;
+  fact.style.display = "";
+}
+
+function nextStation(){
+  play("click");
+  const isLast = state.idx+1 >= state.questions.length;
+  if(isLast || state.lives<=0){
+    renderResults(isLast && state.lives>0 ? false : state.lives<=0 && !isLast);
+  } else {
+    state.idx += 1;
+    renderGame();
+  }
+}
+
+function getRank(correct, endedEarly){
+  if(endedEarly) return {stamp:"Обход прерван", title:"Чернила кончились", color:"var(--seal)",
+    text:"Чернильницы опустели раньше последней станции. Загляните в биографию справа, подзаправьтесь — и возвращайтесь: маршрут никуда не денется."};
+  if(correct===10) return {stamp:"Золотой фонд", title:"Классик", color:"var(--brass)",
+    text:"Безупречно: вы читали Вересаева не по школьной программе, а по любви. Такой обход — честь для любого музея писателя."};
+  if(correct>=8) return {stamp:"Рекомендовано", title:"Верный спутник", color:"var(--moss)",
+    text:"Вы прошли почти весь путь рядом с писателем. Осталось дочитать пару глав — и маршрут можно считать родным."};
+  if(correct>=5) return {stamp:"На перевязку", title:"Начинающий эскулап", color:"var(--teal)",
+    text:"Половина дороги позади, и диагноз обнадеживает: интерес есть, знания набирают силу. Курс чтения — по рецепту ниже."};
+  if(correct>=1) return {stamp:"Прописать чтение", title:"Пациент", color:"var(--seal)",
+    text:"Маршрут показался вам незнакомым — но именно с этого начинается хорошее чтение. Начните с «Записок врача»."};
+  return {stamp:"Повторный курс", title:"Чернила кончились", color:"var(--seal)",
+    text:"Ни одной станции — бывает и так. Вересаев, сам врач, сказал бы: это лечится. Рецепт выписан ниже, принимайте ежедневно."};
+}
+
+function answerText(r){
+  const q = r.question;
+  if(r.chosenIds===null) return "нет ответа — время вышло";
+  if(q.kind==="order") return "ваш порядок: " + r.chosenIds.map(id=>q.options.findIndex(o=>o.id===id)+1).join(" · ");
+  const o = q.options.find(o=>o.id===r.chosenIds[0]);
+  return o ? o.text : "—";
+}
+
+function renderResults(endedEarly){
+  clearTimer();
+  const total = state.questions.length;
+  const correctCount = state.records.filter(r=>r.correct).length;
+  const rank = getRank(correctCount, endedEarly);
+  const missed = total - state.records.length;
+
+  app.innerHTML = `
+  <div class="results">
+    <header class="res-top">
+      <div>
+        <p class="kicker">${endedEarly ? "Протокол обхода · прерван" : "Протокол обхода · завершён"}</p>
+        <h1 class="anim-rise-big">Обход ${endedEarly ? "не окончен" : "окончен"}</h1>
+      </div>
+      <span class="res-note">станций пройдено: ${state.records.length} из ${total}${missed>0?`<span class="warn"> · ${missed} осталось за спиной</span>`:""}</span>
+    </header>
+
+    <div class="res-grid">
+      <section>
+        <div class="rank-panel anim-fade-up">
+          <div class="rank-row">
+            <div class="rank-stamp stamp-frame anim-stamp-in" style="color:${rank.color}">${rank.stamp}</div>
+            <h2 class="rank-title">${rank.title}</h2>
+          </div>
+          <p class="rank-text">${rank.text}</p>
+          <div class="stats">
+            <div class="stat"><div class="lbl">Очки</div><div class="val gold">${state.score}</div></div>
+            <div class="stat"><div class="lbl">Верных</div><div class="val">${correctCount}<small>/${total}</small></div></div>
+            <div class="stat"><div class="lbl">Лучшая серия</div><div class="val">${state.bestStreak}</div></div>
+          </div>
+        </div>
+
+        <h3 class="section-title">Разбор по станциям</h3>
+        <ul class="review">
+          ${state.records.map((r,i)=>`
+          <li class="anim-fade-up" style="animation-delay:${(i*0.05).toFixed(2)}s">
+            <span class="mark ${r.correct?"ok":"no"}">${r.correct?I.check:I.x}</span>
+            <div style="min-width:0;flex:1">
+              <div class="rev-head">
+                <span class="st">${r.question.year} · ${r.question.place}</span>
+                <span class="pts">${r.gained>0?`+${r.gained}`:"+0"}</span>
+              </div>
+              <p class="rev-q">${r.question.prompt}</p>
+              <p class="rev-a ${r.correct?"mine":"missed"}">Ваш ответ: ${answerText(r)}</p>
+              ${!r.correct?`<p class="rev-a right">Верно: ${r.question.kind==="order" ? r.question.options.map((_,j)=>j+1).join(" · ")+" — по списку" : r.question.options.find(o=>o.id===r.question.answer).text}</p>`:""}
+            </div>
+          </li>`).join("")}
+          ${missed>0?`<li class="rev-missed-note anim-fade-up">Ещё ${missed} ${missed===1?"станция осталась":missed<5?"станции остались":"станций остались"} без вопросов — чернила кончились раньше</li>`:""}
+        </ul>
+
+        <div class="res-actions">
+          <button class="btn btn-seal" data-action="replay">${I.reset} Пройти заново</button>
+          <button class="btn btn-ghost" data-action="intro">${I.arrowL} В начало пути</button>
+        </div>
+      </section>
+
+      <aside>
+        <div class="bio anim-fade-up d2">
+          <h3>Краткая карта жизни</h3>
+          <ol>${BIOGRAPHY.map(b=>`
+            <li><span class="dot"></span><div><span class="yr">${b.year}</span><p class="tx">${b.text}</p></div></li>`).join("")}
+          </ol>
+        </div>
+        <div class="rx-home anim-fade-up d3">
+          <div class="paper-surface inner">
+            <h3>Рецепт на дом <span>повторить курсом</span></h3>
+            <ul class="rx-list">
+              ${PRESCRIPTION.map((p,i)=>`<li><span class="rp">Rp.${i+1}</span><div><div class="work">${p.work}</div><div class="note">— ${p.note}</div></div></li>`).join("")}
+            </ul>
+            <p class="foot">D. S. принимать без срока годности</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>`;
+}
+
+/* ================= global actions ================= */
+document.addEventListener("click", (e)=>{
+  const btn = e.target.closest("[data-action]");
+  if(!btn) return;
+  const a = btn.dataset.action;
+  switch(a){
+    case "mute":
+      state.muted = !state.muted;
+      document.querySelectorAll('[data-action="mute"]').forEach(b=>b.innerHTML = state.muted?I.volOff:I.volOn);
+      if(!state.muted) play("click");
+      break;
+    case "start": startGame(); break;
+    case "choice": pickChoice(btn.dataset.id); break;
+    case "chip": pickChip(btn.dataset.id); break;
+    case "reset-order":
+      if(!state.answered && state.orderSel.length < currentQ().options.length){ play("click"); state.orderSel = []; refreshChips(); }
+      break;
+    case "next": nextStation(); break;
+    case "replay": startGame(); break;
+    case "intro": play("click"); renderIntro(); break;
+  }
+});
+
+/* ================= init ================= */
+buildAmbient();
+renderIntro();
+</script>
+</body>
+</html>
